@@ -19,7 +19,7 @@ ServiceBusClient client;
 var clientOptions = new ServiceBusClientOptions
 { 
     TransportType = ServiceBusTransportType.AmqpWebSockets,
-    ConnectionIdleTimeout = TimeSpan.FromMilliseconds(5000)
+    ConnectionIdleTimeout = TimeSpan.FromMilliseconds(20000)
 };
 
 client = new ServiceBusClient(namespaceConnectionString, clientOptions);
@@ -65,9 +65,9 @@ void ShowMenu() {
             }
 }
 
-async void SendMessage()
+void SendMessage()
 {
-    Console.WriteLine("Enter the message to send:");
+    Console.WriteLine("Provide the message to send and press Return/Enter:");
     string? message = Console.ReadLine();
 
     try
@@ -75,8 +75,10 @@ async void SendMessage()
         ServiceBusSender sender = client.CreateSender(queueName);
         ServiceBusMessage serviceBusMessage = new ServiceBusMessage(message);
 
-        await sender.SendMessageAsync(serviceBusMessage);
+        sender.SendMessageAsync(serviceBusMessage);
+        Console.WriteLine();
         Console.WriteLine($"Message sent: {message}");
+        Console.WriteLine();
     }
     catch (Exception ex)
     {
@@ -84,17 +86,19 @@ async void SendMessage()
     }
 }
 
-async void ReceiveMessage()
+void ReceiveMessage()
 {
     try
     {
         ServiceBusReceiver receiver = client.CreateReceiver(queueName);
-        ServiceBusReceivedMessage receivedMessage = await receiver.ReceiveMessageAsync();
+        ServiceBusReceivedMessage receivedMessage = receiver.ReceiveMessageAsync().Result;
 
         if (receivedMessage != null)
         {
+            Console.WriteLine();
             Console.WriteLine($"Received message: {receivedMessage.Body}");
-            await receiver.CompleteMessageAsync(receivedMessage);
+            Console.WriteLine();
+            receiver.CompleteMessageAsync(receivedMessage);
         }
         else
         {
