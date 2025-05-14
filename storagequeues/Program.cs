@@ -16,16 +16,20 @@ using Azure.Identity;
 const string storageAccountName = "<STORAGE-ACCOUNT-NAME>";
 const string queueName = "<QUEUE-NAME>";
 
+using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
+using Azure.Identity;
+
 var queueUri = new Uri($"https://{storageAccountName}.queue.core.windows.net/{queueName}");
 
-await using QueueClient queueClient = new QueueClient(queueUri, new DefaultAzureCredential());
+QueueClient queueClient = new QueueClient(queueUri, new DefaultAzureCredential());
 
 while (true)
 {
     ShowMenu();
 }
 
-async Task ShowMenu()
+void ShowMenu()
 {
     Console.WriteLine("---------");
     Console.WriteLine("Main Menu");
@@ -41,10 +45,10 @@ async Task ShowMenu()
     switch (choice)
     {
         case "1":
-            await SendMessage();
+            SendMessage();
             break;
         case "2":
-            await ReceiveMessage();
+            ReceiveMessage();
             break;
         case "3":
             Console.WriteLine("Exiting...");
@@ -56,41 +60,51 @@ async Task ShowMenu()
     }
 }
 
-async Task SendMessage()
+void SendMessage()
 {
-    Console.WriteLine("Enter the message to send:");
+    Console.WriteLine("Enter the message to send and press Return/Enter:");
     string? message = Console.ReadLine();
 
     try
     {
-        await queueClient.SendMessageAsync(message);
+        queueClient.SendMessage(message);
+        Console.WriteLine();
         Console.WriteLine($"Message sent: {message}");
+        Console.WriteLine();
     }
     catch (Exception ex)
     {
+        Console.WriteLine();
         Console.WriteLine($"Failed to send message: {ex.Message}");
+        Console.WriteLine();
     }
 }
 
-async Task ReceiveMessage()
+void ReceiveMessage()
 {
     try
     {
-        QueueMessage[] messages = await queueClient.ReceiveMessagesAsync(maxMessages: 1);
+        QueueMessage[] messages = queueClient.ReceiveMessages(maxMessages: 1);
 
         if (messages.Length > 0)
         {
             var message = messages[0];
+            Console.WriteLine();
             Console.WriteLine($"Message received: {message.Body}");
-            await queueClient.DeleteMessageAsync(message.MessageId, message.PopReceipt);
+            Console.WriteLine();
+            queueClient.DeleteMessage(message.MessageId, message.PopReceipt);
         }
         else
         {
+            Console.WriteLine();
             Console.WriteLine("No messages available.");
+            Console.WriteLine();
         }
     }
     catch (Exception ex)
     {
+        Console.WriteLine();
         Console.WriteLine($"Failed to receive message: {ex.Message}");
+        Console.WriteLine();
     }
 }
