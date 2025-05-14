@@ -1,5 +1,4 @@
 using Azure.Messaging.ServiceBus;
-using Azure.Identity;
 
 /*
  * NOTE:
@@ -73,7 +72,7 @@ async void SendMessage()
 
     try
     {
-        using ServiceBusSender sender = client.CreateSender(queueName);
+        ServiceBusSender sender = client.CreateSender(queueName);
         ServiceBusMessage serviceBusMessage = new ServiceBusMessage(message);
 
         await sender.SendMessageAsync(serviceBusMessage);
@@ -89,7 +88,7 @@ async void ReceiveMessage()
 {
     try
     {
-        using ServiceBusReceiver receiver = client.CreateReceiver(queueName);
+        ServiceBusReceiver receiver = client.CreateReceiver(queueName);
         ServiceBusReceivedMessage receivedMessage = await receiver.ReceiveMessageAsync();
 
         if (receivedMessage != null)
