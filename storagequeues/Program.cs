@@ -16,10 +16,6 @@ using Azure.Identity;
 const string storageAccountName = "<STORAGE-ACCOUNT-NAME>";
 const string queueName = "<QUEUE-NAME>";
 
-using Azure.Storage.Queues;
-using Azure.Storage.Queues.Models;
-using Azure.Identity;
-
 var queueUri = new Uri($"https://{storageAccountName}.queue.core.windows.net/{queueName}");
 
 QueueClient queueClient = new QueueClient(queueUri, new DefaultAzureCredential());
